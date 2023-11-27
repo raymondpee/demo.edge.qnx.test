@@ -11,10 +11,10 @@ This section is used for testing of the REST client communication from QNX to RE
 
 Following command will build the QNX REST client
 ```
-source ${QNX_HOST}/
+source /opt/qnx710/qnxsdp-env.sh
 mkdir build
 cd build 
-cmake -DCMAKE_TOOLCHAIN_FILE=./../../toolchain/qnx710.cmake ..
+cmake ..
 make
 ```
 
@@ -33,4 +33,15 @@ docker-compose up
 
 ### 2. Run REST QNX client
 
-Later on at QNX client launch REST client as below
+1) Login to the QNX environment using ssh and go to the remote_dir where the mqtt_pub and mqtt_sub is copied,
+```
+ssh <username>@<remote address>
+cd <remote_dir>
+```
+
+2) Run the rest client as below
+```
+./rest_client
+```
+
+3) You will see the printout as below from the rest client
