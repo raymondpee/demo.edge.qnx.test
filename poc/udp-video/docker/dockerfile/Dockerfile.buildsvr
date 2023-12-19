@@ -1,0 +1,75 @@
+# Use an official Ubuntu base image
+
+###########################
+#      BASE IMG         #
+###########################
+FROM ubuntu:18.04 AS x86_64_base
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        python3 \
+        python3-pip \
+        pkg-config \
+        autoconf \
+        automake \
+        libtool \
+        cmake \
+        opencl-headers \
+        unzip \
+        gcc-arm-linux-gnueabi  \
+        g++-arm-linux-gnueabihf && \
+        pip3 install --upgrade pip && \
+        rm -rf /var/lib/apt/lists/* && \
+        pip install meson
+
+COPY 3rd_party/qx710.zip /opt/
+RUN unzip /opt/qx710.zip -d /opt && \
+    chmod -R +x /opt/qnx710 && \
+    rm /opt/qx710.zip
+
+RUN pip install --default-timeout=1800 \
+    numpy==1.18.5 \
+    matplotlib==3.0.3 \
+    scikit-image==0.15.0 \
+    mako \
+    tensorflow \
+    tflite==2.3.0 \
+    onnx==1.6.0 \
+    torch==1.8.1 torchvision==0.9.1 torchaudio==0.8.1 \
+    psutil  \
+    attrs \
+    pytest
+
+COPY 3rd_party/aistack.zip /opt/qcom/
+COPY 3rd_party/fastcv-1-7-1_LinuxEmbedded.zip /opt/fastcv/ 
+RUN unzip /opt/qcom/aistack.zip -d /opt/qcom && \
+    unzip /opt/fastcv/fastcv-1-7-1_LinuxEmbedded.zip -d /opt/fastcv && \
+    mkdir /opt/android-ndk/ && cd /opt/android-ndk/ && \
+    wget https://dl.google.com/android/repository/android-ndk-r17c-linux-x86_64.zip && \
+    unzip /opt/android-ndk/android-ndk-r17c-linux-x86_64.zip -d /opt/android-ndk && \
+    rm /opt/qcom/aistack.zip && \ 
+    rm /opt/android-ndk/android-ndk-r17c-linux-x86_64.zip && \ 
+    rm /opt/fastcv/fastcv-1-7-1_LinuxEmbedded.zip 
+
+RUN cd /opt/ && \
+    git clone https://github.com/ipkn/crow.git && \
+    git clone https://github.com/eclipse/paho.mqtt.c  && \
+    cd /opt/paho.mqtt.c && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make
+
+ENV ANDROID_NDK_ROOT=/opt/android-ndk/android-ndk-r17c
+ENV PATH=${ANDROID_NDK_ROOT}:${PATH}
+ENV SNPE_TARGET_PLATFORM=x86_64-linux-clang
+ENV LD_LIBRARY_PATH=/opt/qcom/aistack/snpe/2.15.0.230926/lib/${SNPE_TARGET_PLATFORM}:$LD_LIBRARY_PATH
+ENV SNPE_ROOT=/opt/qcom/aistack/snpe/2.15.0.230926
+ENV PYTHONPATH=/opt/qcom/aistack/snpe/2.15.0.230926/lib/python:$PYTHONPATH
