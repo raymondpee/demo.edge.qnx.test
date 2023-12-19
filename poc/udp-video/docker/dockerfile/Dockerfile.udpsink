@@ -1,4 +1,3 @@
-# Use an Ubuntu-based image as the base
 FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -23,7 +22,6 @@ RUN apt-get update && apt-get install -y \
 
 ENV GST_OMX_CONFIG_DIR=/usr/lib/arm-linux-gnueabihf/gstreamer-1.0
 
-# Create a working directory
 WORKDIR /app
 ENV UDP_PORT="5000"
 CMD gst-launch-1.0 udpsrc port=$UDP_PORT caps = "application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGB, depth=(string)8, width=(string)320, height=(string)240, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904" ! rtpvrawdepay ! videoconvert ! queue ! xvimagesink sync=false
