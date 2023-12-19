@@ -1,0 +1,13 @@
+version: '3'
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+    container_name: mqtt-broker
+    networks:
+      - mqtt-network
+    command: mosquitto -c /mosquitto-no-auth.conf
+
+networks:
+  mqtt-network:
