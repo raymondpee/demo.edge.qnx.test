@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <time.h>
 
 #define DEFAULT_UDP_ADDR "0.0.0.0"
 #define DEFAULT_UDP_PORT "5000"
@@ -37,9 +38,20 @@ int main() {
 
     // Configure server address
     memset(&serverAddr, 0, sizeof(serverAddr));
+    memset(&udp_src, 0, sizeof(udp_src));
+    memset(&udp_sink, 0, sizeof(udp_sink));
+
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serverAddr.sin_port = htons(atoi(udp_server_port));
+
+    udp_src.sin_family = AF_INET;
+    udp_src.sin_addr.s_addr = inet_addr(udp_src_addr);
+    udp_src.sin_port = htons(atoi(udp_src_port));
+
+    udp_sink.sin_family = AF_INET;
+    udp_sink.sin_addr.s_addr = inet_addr(udp_sink_addr);
+    udp_sink.sin_port = htons(atoi(udp_sink_port));
 
     // Bind the socket to the server address
     if (bind(udpSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
@@ -47,29 +59,15 @@ int main() {
         close(udpSocket);
         exit(1);
     }
-
-    printf("UDP server is listening on port %d...\n", udp_server_port);
-
-    // Configure UDP source address
-    memset(&udp_src, 0, sizeof(udp_src));
-    udp_src.sin_family = AF_INET;
-    udp_src.sin_addr.s_addr = inet_addr(udp_src_addr);
-    udp_src.sin_port = htons(atoi(udp_src_port));
-
-    // Configure UDP sink address
-    memset(&udp_sink, 0, sizeof(udp_sink));
-    udp_sink.sin_family = AF_INET;
-    udp_sink.sin_addr.s_addr = inet_addr(udp_sink_addr);
-    udp_sink.sin_port = htons(atoi(udp_sink_port));
+    printf("UDP server is listening on port %s...\n", udp_server_port);
 
     while (1) {
-        // Receive UDP packet
         ssize_t bytesRead = recvfrom(udpSocket, buffer, sizeof(buffer), 0, (struct sockaddr*)&udp_src, &addrLen);
         if (bytesRead < 0) {
             perror("Error receiving UDP packet");
             continue;
         }
-
+        printf("Successfully receieve package");
         // Process the received frame (you can add your logic here)
 
         // Forward the frame to another UDP destination
