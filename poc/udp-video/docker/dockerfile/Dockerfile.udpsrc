@@ -17,10 +17,10 @@ RUN apt-get update && apt-get install -y \
     libgstreamer-plugins-bad1.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV UDP_ADDR=0.0.0.0
+ENV UDP_ADDR=255.255.255.255
 ENV UDP_PORT=5000
 ENV GST_OMX_CONFIG_DIR=/usr/lib/arm-linux-gnueabihf/gstreamer-1.0
 
 WORKDIR /app
-CMD gst-launch-1.0 videotestsrc ! videoconvert ! video/x-raw,format=RGB ! rtpvrawpay ! udpsink host=$UDP_ADDR port=$UDP_PORT
+CMD gst-launch-1.0 videotestsrc width=1440 height=810 ! videoconvert ! video/x-raw,format=RGB ! rtpvrawpay ! udpsink host=$UDP_ADDR port=$UDP_PORT
 

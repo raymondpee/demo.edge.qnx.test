@@ -1,27 +1,18 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(udp_processor)
 
-set(CMAKE_C_COMPILER $ENV{QNX_HOST}/usr/bin/aarch64-unknown-nto-qnx7.1.0-gcc)
-set(CMAKE_CXX_COMPILER $ENV{QNX_HOST}/usr/bin/aarch64-unknown-nto-qnx7.1.0-g++)
+# Set the compiler paths for Ubuntu
+set(CMAKE_C_COMPILER /opt/gcc-linaro-4.9-2014.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc)
+set(CMAKE_CXX_COMPILER /opt/gcc-linaro-4.9-2014.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl -pthread")
 
-set(TARGET_DIR $ENV{QNX_HOST}/../../../target/qnx7)
-set(SOCKET_INCLUDE_DIR ${TARGET_DIR}/usr/include)
-set(SOCKET_LIBRARY ${TARGET_DIR}/aarch64le/lib/libsocket.so.3)
+# Specify the paths for the socket library on Ubuntu
+set(SOCKET_INCLUDE_DIR /usr/include)
+set(FASTCV_INCLUDE_DIR /opt/fastcv/fastcv-1-7-1_LinuxEmbedded/inc)
+set(FASTCV_LIBRARY /opt/fastcv/fastcv-1-7-1_LinuxEmbedded/lib/64-bit/libfastcv.a)
 
-include_directories(${SOCKET_INCLUDE_DIR})
+include_directories(${SOCKET_INCLUDE_DIR} ${FASTCV_INCLUDE_DIR}) 
 
 add_executable(udp_processor main.cpp)
+target_link_libraries(udp_processor ${FASTCV_LIBRARY})
 
-target_link_libraries(udp_processor ${SOCKET_LIBRARY})
-
-set(SOURCE_DIR ${TARGET_DIR}/aarch64le/lib/)
-
-set(DEST_DIR ${CMAKE_BINARY_DIR})
-
-set(DEPENDENCY_LIBS
-    libsocket.so.3
-)
-
-foreach(file ${DEPENDENCY_LIBS})
-    file(COPY ${SOURCE_DIR}/${file} DESTINATION ${DEST_DIR})
-endforeach()

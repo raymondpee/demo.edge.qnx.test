@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
     gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
     gstreamer1.0-libav \
     libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev \
@@ -16,15 +15,17 @@ RUN apt-get update && apt-get install -y \
     libgstreamer-plugins-base1.0-0 \
     libgstreamer-plugins-good1.0-0 \
     libgstreamer-plugins-bad1.0-0 \
-    x11-utils \
-    xorg-dev  \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install libgstreamer1.0-rtsp-dev
+RUN cd /opt/ &&\
+    git clone git://anongit.freedesktop.org/gstreamer/gst-rtsp-server && cd gst-rtsp-server &&\
+    git checkout remotes/origin/1.2 &&\
+    ./autogen.sh --noconfigure && GST_PLUGINS_GOOD_DIR=$(pkg-config --variable=pluginsdir gstreamer-plugins-bad-1.0) ./configure && make cd examples 
 
+ENV UDP_ADDR=0.0.0.0
+ENV UDP_PORT=5000
 ENV GST_OMX_CONFIG_DIR=/usr/lib/arm-linux-gnueabihf/gstreamer-1.0
 
 WORKDIR /app
-ENV UDP_PORT="5000"
-ENV RTSP_PORT="6000"
-CMD gst-launch-1.0 udpsrc tls-validation-flags=0 protocols=tcp location= ! rtpvrawdepay ! videoconvert ! queue ! x264enc tune=zerolatency ! rtph264pay ! rtspsink location=rtsp://0.0.0.0:$RTSP_PORT/stream
+CMD ./test-launch "(videotestsrc ! videoconvert ! video/x-raw,format=RGB ! rtpvrawpay !)"
+

@@ -6,15 +6,36 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <time.h>
+#include <fastcv.h> // Include FastCV for image scaling
 
 #define DEFAULT_UDP_ADDR "0.0.0.0"
 #define DEFAULT_UDP_PORT "5000"
 #define MAX_BUFFER_SIZE 65536  // Maximum UDP packet size
+#define NUM_SCALE_IMG 2
+#define SRC_WIDTH 1440
+#define SRC_HEIGHT 810
+#define DST_SIZE 640
 
 // Custom getenv function with a default value
 const char *getenv_with_default(const char *name, const char *default_value) {
     const char *value = getenv(name);
     return (value != NULL) ? value : default_value;
+}
+
+
+void save_img_to_file(uint8_t* img, uint32_t img_size, const char* outputFilePath)
+{
+    // Open the file for writing
+    FILE* outputFile = fopen(outputFilePath, "wb");
+    if (outputFile) {
+        // Write the image data to the file
+        fwrite(img, 1, img_size, outputFile);
+        // Close the file
+        fclose(outputFile);
+        printf("Image saved as %s\n", outputFilePath);
+    } else {
+        printf("Error: Could not open the file for writing.\n");
+    }
 }
 
 int main() {
@@ -67,8 +88,16 @@ int main() {
             perror("Error receiving UDP packet");
             continue;
         }
+
         printf("Successfully receieve package");
-        // Process the received frame (you can add your logic here)
+
+        uint8_t* resized_img = (uint8_t*) fcvMemAlloc(DST_SIZE*DST_SIZE, 16);
+
+        // Perform image scaling using FastCV
+        fcvScaleDownBLu8((uint8_t*)buffer, SRC_WIDTH, SRC_HEIGHT, 0, resized_img, DST_SIZE, DST_SIZE, 0);
+
+        save_img_to_file((uint8_t*)buffer, SRC_WIDTH*SRC_HEIGHT, "./ori_frame.jpg");
+        save_img_to_file((uint8_t*)resized_img, DST_SIZE*DST_SIZE, "./scaled_frame.jpg");
 
         // Forward the frame to another UDP destination
         ssize_t bytesSent = sendto(udpSocket, buffer, bytesRead, 0, (struct sockaddr*)&udp_sink, sizeof(udp_sink));
