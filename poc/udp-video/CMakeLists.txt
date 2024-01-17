@@ -1,18 +1,26 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.0)
 project(udp_processor)
 
 # Set the compiler paths for Ubuntu
-set(CMAKE_C_COMPILER /opt/gcc-linaro-4.9-2014.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc)
-set(CMAKE_CXX_COMPILER /opt/gcc-linaro-4.9-2014.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl -pthread")
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC ")
 
-# Specify the paths for the socket library on Ubuntu
+find_package(OpenCV REQUIRED)
+
+set(OPENCV_INCLUDE_DIR /usr/include/opencv4)
 set(SOCKET_INCLUDE_DIR /usr/include)
-set(FASTCV_INCLUDE_DIR /opt/fastcv/fastcv-1-7-1_LinuxEmbedded/inc)
-set(FASTCV_LIBRARY /opt/fastcv/fastcv-1-7-1_LinuxEmbedded/lib/64-bit/libfastcv.a)
+set(SNPE_INCLUDE_DIR $ENV{SNPE_ROOT}/include/SNPE)
+set(SNPE_LIBRARY_DIR $ENV{SNPE_ROOT}/lib/x86_64-linux-clang)
+set(GNU_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
 
-include_directories(${SOCKET_INCLUDE_DIR} ${FASTCV_INCLUDE_DIR}) 
+include_directories(${SOCKET_INCLUDE_DIR} ${SNPE_INCLUDE_DIR} ${OPENCV_INCLUDE_DIR}) 
 
 add_executable(udp_processor main.cpp)
-target_link_libraries(udp_processor ${FASTCV_LIBRARY})
 
+target_link_libraries(udp_processor 
+    ${SNPE_LIBRARY_DIR}/libSNPE.so
+    ${GNU_LIBRARY_DIR}/libopencv_core.so.4.2
+    ${GNU_LIBRARY_DIR}/libopencv_imgcodecs.so.4.2
+    ${GNU_LIBRARY_DIR}/libopencv_imgproc.so.4.2
+    ${GNU_LIBRARY_DIR}/libc++.so.1
+)
