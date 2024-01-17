@@ -125,10 +125,12 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < output_len; i += 7) {
         float prob = output_data[i + 2];
+        std::cout<<prob<<std::endl;
         int x = int(output_data[i + 3] * width);
         int y = int(output_data[i + 4] * height);
         int w = int(output_data[i + 5] * width - x);
         int h = int(output_data[i + 6] * height - y);
+        std::cout<<x<<" "<<y<<std::endl;
         std::string label(class_names[int(output_data[i+1])] + std::to_string(prob));
         cv::putText(mat, label, cv::Point(x, y - 5), 0, 0.5, cv::Scalar(255,0,255), 2);
         cv::rectangle(mat, cv::Point(x, y), cv::Point(x + w, y + h), cv::Scalar(0,255,0), 2);

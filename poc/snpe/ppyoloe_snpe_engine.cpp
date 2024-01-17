@@ -91,10 +91,10 @@ int PPYOLOE_SNPE_ENGINE::setRuntime(zdl::DlSystem::Runtime_t runtime_t){
 
 int PPYOLOE_SNPE_ENGINE::inference(const cv::Mat& input_mat, cv::Mat& output_mat) {
     
-    cv::Mat resized_input;
+    cv::Mat resized_input, rgbImage;
     cv::resize(input_mat, resized_input, cv::Size(IMG_WIDTH, IMG_HEIGHT));
+    cv::cvtColor(resized_input, rgbImage, cv::COLOR_BGR2RGB);
     auto tensor_img = m_input_tensor_map.getTensor("image");
-    size_t memorySizeBytes = tensor_img->getSize();
     int mem_size = resized_input.rows * resized_input.cols * resized_input.channels();
     float* src = (float*) resized_input.data;
     std::copy(src, src + mem_size, tensor_img->begin()); 
@@ -109,12 +109,21 @@ int PPYOLOE_SNPE_ENGINE::inference(const cv::Mat& input_mat, cv::Mat& output_mat
         cout << "engine inference success..." << endl;
     }
 
-    const zdl::DlSystem::Optional<zdl::DlSystem::StringList> &outputTensorNames =m_engine->getOutputTensorNames();
-    auto itensor = m_output_tensor_map.getTensor((*outputTensorNames).at(0));
-    if (itensor == nullptr) {
-        cerr << "output tensor is null : " << zdl::DlSystem::getLastErrorString() << endl;
-        return -1;
+    const auto& outputTensorNamesRef = m_engine->getOutputTensorNames();
+    const auto& outputTensorNames = *outputTensorNamesRef;
+
+    for (int i = 0; i < outputTensorNames.size(); ++i) {
+        zdl::DlSystem::ITensor* outputTensor = m_output_tensor_map.getTensor(outputTensorNames.at(i));
+        auto outputData = outputTensor->begin();
+        size_t output_data_size = outputTensor->getSize();
+        // Print the results
+        std::cout << "Output Tensor Name: " << outputTensorNames.at(i) << std::endl;
+        for (size_t j = 0; j < output_data_size; ++j) {
+            if(outputData[j]>0)
+                std::cout << "Result[" << j << "]: " << outputData[j] << std::endl;
+        }        
     }
+    /*
     auto itensor_shape = itensor->getShape();
     auto* dims = itensor_shape.getDimensions();
     size_t dim_count = itensor_shape.rank();
@@ -128,6 +137,7 @@ int PPYOLOE_SNPE_ENGINE::inference(const cv::Mat& input_mat, cv::Mat& output_mat
     for(auto it = itensor->begin(); it!=itensor->end();it++) {
         output_data[i++] = *it;
     }
+    */
     return 0;
 }
 
