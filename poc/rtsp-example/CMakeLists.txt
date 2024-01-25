@@ -17,6 +17,8 @@ set(DIR_GROUP_SOCK ${CMAKE_CURRENT_SOURCE_DIR}/groupsock/)
 set(DIR_MEDIA_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/mediaServer/)
 set(DIR_PROXY_SERVER ${CMAKE_CURRENT_SOURCE_DIR}/proxyServer/)
 
+find_package(OpenCV REQUIRED)
+
 # Include multiple directories
 include_directories(
     ${DIR_GROUP_SOCK}/include
@@ -37,20 +39,7 @@ add_executable(RTSPClient
     ${FILE_GROUP_SOCK}              
     ${FILE_LIVE_MEDIA}         
     ${FILE_USAGE}         
-    "${CMAKE_CURRENT_SOURCE_DIR}/testProgs/testRTSPClient.cpp"         
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/RTSPClient.cpp"         
 )
 
-target_link_libraries(RTSPClient ssl crypto)
-
-# Add the second executable target and list its source files
-add_executable(RTSPServer
-    ${FILE_BASIC_USAGE}
-    ${FILE_GROUP_SOCK}
-    ${FILE_LIVE_MEDIA}
-    ${FILE_USAGE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/testProgs/testMPEG4VideoStreamer.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/testProgs/announceURL.cpp"
-)
-
-# Link libraries for the second executable
-target_link_libraries(RTSPServer ssl crypto)
+target_link_libraries(RTSPClient ssl crypto ${OpenCV_LIBS}) 
