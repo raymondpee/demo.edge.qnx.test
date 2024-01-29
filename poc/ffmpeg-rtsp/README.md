@@ -1,0 +1,1 @@
+./configure --enable-cross-compile --cross-prefix=aarch64-unknown-nto-qnx7.1.0- --arch=aarch64le --disable-debug --enable-optimizations --enable-asm --disable-static --enable-shared --target-os=qnx --disable-ffplay --disable-ffserver --disable-ffprobe --prefix=`pwd`/target
