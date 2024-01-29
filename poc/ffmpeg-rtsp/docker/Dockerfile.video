@@ -1,0 +1,4 @@
+FROM  raymondpyn/rtsp-x64:30012024
+
+RUN pwd
+CMD gst-launch-1.0 -v videotestsrc ! videoconvert ! videoscale ! video/x-raw,width=640,height=360 ! x264enc ! rtspclientsink location=rtsp://localhost:8554/mystream
