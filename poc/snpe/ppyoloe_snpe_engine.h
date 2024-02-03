@@ -13,7 +13,7 @@
 #include "opencv2/opencv.hpp"
 
 #define INF_BATCH 1
-#define IMG_WIDTH 640
+#define IMG_WIDTH 224
 #define IMG_HEIGHT IMG_WIDTH
 #define IMG_CHANNEL 3
 #define DIM_SIZE 4
@@ -31,6 +31,7 @@ public:
 
 private:
     int setRuntime(zdl::DlSystem::Runtime_t runtime_t);
+    int setInputData(const cv::Mat& batchedInputTensor);
     void build_tensor(const cv::Mat& mat);
 
     // snpe model
