@@ -4,37 +4,12 @@
 #include <fstream>
 #include <sstream>
 
-/*
-extern "C"
-{
-    #include <avcodec.h>
-    #include <avformat.h>
-    #include <avio.h>
-    #include <swscale.h>
-}
-*/
-
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
 }
-#include <opencv2/opencv.hpp>
-
-void save_frame_as_image(AVFrame *frame, const char *filename) {
-    cv::Mat cvFrame(frame->height, frame->width, CV_8UC3, frame->data[0]);
-
-    // Save the frame as an image using OpenCV
-    bool success = cv::imwrite(filename, cvFrame);
-
-    if (!success) {
-        fprintf(stderr, "Failed to save frame as an image: %s\n", filename);
-        return;
-    }
-    printf("Saved frame as an image: %s\n", filename);  
-}
-
 
 void log_callback(void *ptr, int level, const char *fmt, va_list vargs)
 {

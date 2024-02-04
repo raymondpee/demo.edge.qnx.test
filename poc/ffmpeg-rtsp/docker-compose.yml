@@ -1,5 +1,11 @@
 version: '3'
 services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    network_mode: host
+    privileged: true
+    tty: true
+
   rtsp-x64:
     build:
       context: ./docker
@@ -7,3 +13,5 @@ services:
     network_mode: host
     privileged: true
     tty: true
+    depends_on:
+      - mediamtx
